@@ -4,6 +4,11 @@
 
 ## Prebuilded tcpdump binary in PreBuild/
 
+```bash
+wget https://github.com/Zhu-Zhi-Hao/Droid_Tcodump/raw/master/PreBuild/tcpdump
+```
+> I use linaro gcc-4.8 compile pcap and tcpdump WITHOUT cryto
+
 [![Build
 Status](https://travis-ci.org/the-tcpdump-group/tcpdump.png)](https://travis-ci.org/the-tcpdump-group/tcpdump)
 
