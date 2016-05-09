@@ -22,7 +22,7 @@
 #
 
 # Top level hierarchy
-prefix = /root/tcpdump-4.7.4/bins
+prefix = /data/data/droid.exploit.toolkit/tcpdump/
 exec_prefix = ${prefix}
 datarootdir = ${prefix}/share
 # Pathname of directory to install the binary
@@ -43,18 +43,18 @@ AR = ar
 MKDEP = 
 PROG = tcpdump
 CCOPT =  -ffloat-store
-INCLS = -I. -I/usr/include  -I./missing
-DEFS = -DHAVE_CONFIG_H  -I./missing  -D_U_="__attribute__((unused))"
+INCLS = -I. -I/usr/include 
+DEFS = -DHAVE_CONFIG_H   -D_U_="__attribute__((unused))"
 
 # Standard CFLAGS
-CFLAGS = -DINET6 -g -O2
+CFLAGS = -g -O2
 FULL_CFLAGS = $(CCOPT) $(DEFS) $(INCLS) $(CFLAGS)
 
 # Standard LDFLAGS
-LDFLAGS = -static 
+LDFLAGS = -Wl,-rpath=/data/data/droid.exploit.toolkit/tcpdump/lib -Wl,-dynamic-linker=/data/data/droid.exploit.toolkit/tcpdump/lib/libdroid_support.so.1
 
 # Standard LIBS
-LIBS = -L/usr/lib/arm-linux-gnueabihf  -lpcap 
+LIBS = -lcrypto -L/usr/lib/arm-linux-gnueabihf  -lpcap -lsmi 
 
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}
@@ -70,11 +70,13 @@ DEPENDENCY_CFLAG =
 	@rm -f $@
 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/$*.c
 
-CSRC =	setsignal.c tcpdump.c
+CSRC =	setsignal.c tcpdump.c util.c
 
 LIBNETDISSECT_SRC=\
 	addrtoname.c \
+	addrtostr.c \
 	af.c \
+	ascii_strcasecmp.c \
 	checksum.c \
 	cpack.c \
 	gmpls.c \
@@ -86,6 +88,7 @@ LIBNETDISSECT_SRC=\
 	nlpid.c \
 	oui.c \
 	parsenfsfh.c \
+	print.c \
 	print-802_11.c \
 	print-802_15_4.c \
 	print-ah.c \
@@ -98,6 +101,7 @@ LIBNETDISSECT_SRC=\
 	print-ascii.c \
 	print-atalk.c \
 	print-atm.c \
+	print-babel.c \
 	print-beep.c \
 	print-bfd.c \
 	print-bgp.c \
@@ -112,6 +116,7 @@ LIBNETDISSECT_SRC=\
 	print-cnfp.c \
 	print-dccp.c \
 	print-decnet.c \
+	print-dhcp6.c \
 	print-domain.c \
 	print-dtp.c \
 	print-dvmrp.c \
@@ -124,6 +129,7 @@ LIBNETDISSECT_SRC=\
 	print-fddi.c \
 	print-forces.c \
 	print-fr.c \
+	print-frag6.c \
 	print-ftp.c \
 	print-geneve.c \
 	print-geonet.c \
@@ -131,10 +137,12 @@ LIBNETDISSECT_SRC=\
 	print-hsrp.c \
 	print-http.c \
 	print-icmp.c \
+	print-icmp6.c \
 	print-igmp.c \
 	print-igrp.c \
 	print-ip.c \
 	print-ip6.c \
+	print-ip6opts.c \
 	print-ipcomp.c \
 	print-ipfc.c \
 	print-ipnet.c \
@@ -146,6 +154,7 @@ LIBNETDISSECT_SRC=\
 	print-l2tp.c \
 	print-lane.c \
 	print-ldp.c \
+	print-lisp.c \
 	print-llc.c \
 	print-lldp.c \
 	print-lmp.c \
@@ -154,7 +163,9 @@ LIBNETDISSECT_SRC=\
 	print-lwapp.c \
 	print-lwres.c \
 	print-m3ua.c \
+	print-medsa.c \
 	print-mobile.c \
+	print-mobility.c \
 	print-mpcp.c \
 	print-mpls.c \
 	print-mptcp.c \
@@ -162,12 +173,14 @@ LIBNETDISSECT_SRC=\
 	print-msnlb.c \
 	print-nflog.c \
 	print-nfs.c \
+	print-nsh.c \
 	print-ntp.c \
 	print-null.c \
 	print-olsr.c \
 	print-openflow-1.0.c \
 	print-openflow.c \
 	print-ospf.c \
+	print-ospf6.c \
 	print-otv.c \
 	print-pgm.c \
 	print-pim.c \
@@ -178,10 +191,13 @@ LIBNETDISSECT_SRC=\
 	print-pptp.c \
 	print-radius.c \
 	print-raw.c \
+	print-resp.c \
 	print-rip.c \
+	print-ripng.c \
 	print-rpki-rtr.c \
 	print-rrcp.c \
 	print-rsvp.c \
+	print-rt6.c \
 	print-rtsp.c \
 	print-rx.c \
 	print-sctp.c \
@@ -211,13 +227,15 @@ LIBNETDISSECT_SRC=\
 	print-vrrp.c \
 	print-vtp.c \
 	print-vxlan.c \
+	print-vxlan-gpe.c \
 	print-wb.c \
 	print-zephyr.c \
 	print-zeromq.c \
 	signature.c \
-	util.c
+	strtoaddr.c \
+	util-print.c
 
-LOCALSRC = print-ip6opts.c print-mobility.c print-ripng.c print-icmp6.c print-frag6.c print-rt6.c print-ospf6.c print-dhcp6.c print-babel.c print-smb.c smbutil.c 
+LOCALSRC = print-smb.c smbutil.c 
 GENSRC = version.c
 LIBOBJS =  ${LIBOBJDIR}strlcat$U.o ${LIBOBJDIR}strlcpy$U.o
 
@@ -232,11 +250,12 @@ SRC =	$(CSRC) $(GENSRC) $(LOCALSRC) $(LIBNETDISSECT_SRC)
 OBJ =	$(CSRC:.c=.o) $(GENSRC:.c=.o) $(LIBNETDISSECT_OBJ)
 HDR = \
 	addrtoname.h \
+	addrtostr.h \
 	af.h \
 	ah.h \
 	appletalk.h \
+	ascii_strcasecmp.h \
 	atm.h \
-	atmuni31.h \
 	chdlc.h \
 	cpack.h \
 	ether.h \
@@ -264,6 +283,7 @@ HDR = \
 	oui.h \
 	pcap-missing.h \
 	ppp.h \
+	print.h \
 	rpc_auth.h \
 	rpc_msg.h \
 	rpl.h \
@@ -271,8 +291,10 @@ HDR = \
 	signature.h \
 	slcompress.h \
 	smb.h \
+	strtoaddr.h \
 	tcp.h \
-	tcpdump-stdinc.h \
+	netdissect-stdinc.h \
+	timeval-operations.h \
 	udp.h
 
 TAGHDR = \
@@ -314,14 +336,9 @@ EXTRA_DIST = \
 	lbl/os-sunos4.h \
 	lbl/os-ultrix4.h \
 	makemib \
-	missing/addrinfo.h \
 	missing/dlnames.c \
 	missing/datalinks.c \
-	missing/getnameinfo.c \
 	missing/getopt_long.c \
-	missing/inet_aton.c \
-	missing/inet_ntop.c \
-	missing/inet_pton.c \
 	missing/snprintf.c \
 	missing/strdup.c \
 	missing/strlcat.c \
@@ -330,24 +347,13 @@ EXTRA_DIST = \
 	mkdep \
 	packetdat.awk \
 	pcap_dump_ftell.c \
-	print-babel.c \
-	print-dhcp6.c \
-	print-frag6.c \
-	print-icmp6.c \
-	print-ip6opts.c \
-	print-mobility.c \
-	print-ospf6.c \
 	print-pflog.c \
-	print-ripng.c \
-	print-rt6.c \
 	print-smb.c \
 	send-ack.awk \
 	smbutil.c \
 	stime.awk \
-	strcasecmp.c \
 	tcpdump.1.in \
 	vfprintf.c \
-	win32/Include/w32_fzs.h \
 	win32/prj/GNUmakefile \
 	win32/prj/WinDump.dsp \
 	win32/prj/WinDump.dsw
@@ -369,16 +375,8 @@ datalinks.o: $(srcdir)/missing/datalinks.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/datalinks.c
 dlnames.o: $(srcdir)/missing/dlnames.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/dlnames.c
-getnameinfo.o: $(srcdir)/missing/getnameinfo.c
-	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/getnameinfo.c
 getopt_long.o: $(srcdir)/missing/getopt_long.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/getopt_long.c
-inet_pton.o: $(srcdir)/missing/inet_pton.c
-	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/inet_pton.c
-inet_ntop.o: $(srcdir)/missing/inet_ntop.c
-	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/inet_ntop.c
-inet_aton.o: $(srcdir)/missing/inet_aton.c
-	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/inet_aton.c
 snprintf.o: $(srcdir)/missing/snprintf.c
 	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/snprintf.c
 strdup.o: $(srcdir)/missing/strdup.c
